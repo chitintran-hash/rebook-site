@@ -99,10 +99,6 @@ export default function Home() {
                   </AnimatePresence>
                </div>
             </div>
-            <div className="absolute -bottom-8 -left-8 glass p-6 rounded-3xl shadow-xl border border-white/50">
-              <p className="text-3xl font-serif font-bold text-primary">12k+</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-foreground/40">Độc giả tin dùng</p>
-            </div>
           </motion.div>
         </div>
       </section>

@@ -4,16 +4,21 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogIn, Mail, Lock, ArrowRight, BookOpen, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isVerified = searchParams.get("verified") === "true";
+  const isReset = searchParams.get("reset") === "true";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +33,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Email hoặc mật khẩu không đúng.");
+        setError("Đăng nhập thất bại. Email/Mật khẩu không đúng, hoặc tài khoản chưa được xác thực.");
       } else {
         router.push("/");
       }
@@ -54,6 +59,17 @@ export default function LoginPage() {
           <p className="text-foreground/50 text-center mt-2">Đăng nhập vào tài khoản EliteBooks của bạn</p>
         </div>
 
+        {isVerified && (
+          <div className="mb-6 bg-green-50 text-green-600 p-4 rounded-2xl text-sm font-medium border border-green-100 text-center">
+            Email đã được xác thực thành công! Vui lòng đăng nhập.
+          </div>
+        )}
+        {isReset && (
+          <div className="mb-6 bg-green-50 text-green-600 p-4 rounded-2xl text-sm font-medium border border-green-100 text-center">
+            Mật khẩu đã được đổi thành công! Vui lòng sử dụng mật khẩu mới để đăng nhập.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-bold text-foreground/70 ml-1">Email</label>
@@ -73,7 +89,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
               <label className="text-sm font-bold text-foreground/70">Mật khẩu</label>
-              <a href="#" className="text-xs font-bold text-primary hover:underline">Quên mật khẩu?</a>
+              <Link href="/forgot-password" className="text-xs font-bold text-primary hover:underline">Quên mật khẩu?</Link>
             </div>
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30 group-focus-within:text-primary transition-colors" />
@@ -144,5 +160,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background-soft flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

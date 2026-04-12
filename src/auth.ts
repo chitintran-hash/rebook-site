@@ -20,7 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .single();
 
         if (error || !user) {
-          return null;
+          throw new Error("Email hoặc mật khẩu không đúng.");
         }
 
         const isValid = await bcrypt.compare(
@@ -29,7 +29,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!isValid) {
-          return null;
+          throw new Error("Email hoặc mật khẩu không đúng.");
+        }
+
+        if (user.email_verified === false) {
+          throw new Error("Vui lòng xác thực email trước khi đăng nhập.");
         }
 
         return { 
