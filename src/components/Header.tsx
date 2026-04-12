@@ -1,14 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { BookOpen, Search, ShoppingBag, User, LogOut, LayoutDashboard, Wallet, Inbox, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getUserData } from "@/lib/actions/user-actions";
 
 export const Header = () => {
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCart = () => {
+      if (session?.user) {
+        getUserData().then(res => setCartCount(res.cartIds.length));
+      }
+    };
+    
+    fetchCart();
+    
+    window.addEventListener("cartUpdated", fetchCart);
+    return () => window.removeEventListener("cartUpdated", fetchCart);
+  }, [session]);
 
   return (
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 py-4 flex justify-between items-center transition-all duration-300">
@@ -40,10 +55,14 @@ export const Header = () => {
         
         {session ? (
           <div className="flex items-center gap-2 pl-4 border-l border-black/5">
-             <button className="p-2 hover:bg-black/5 rounded-full transition-colors relative">
+             <Link href="/cart" className="p-2 hover:bg-black/5 rounded-full transition-colors relative block">
                 <ShoppingBag className="w-5 h-5" />
-                <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full">3</span>
-             </button>
+                {cartCount > 0 && (
+                  <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full animate-bounce-short">
+                    {cartCount}
+                  </span>
+                )}
+             </Link>
              <div className="relative group">
                 <button className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors">
                   <User className="w-5 h-5 text-primary" />

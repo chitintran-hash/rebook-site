@@ -91,6 +91,8 @@ export default function MarketplacePage() {
     if (res?.error) {
       setCartIds(prev => isCarted ? [...prev, bookId] : prev.filter(id => id !== bookId));
       alert(res.error);
+    } else {
+      window.dispatchEvent(new Event("cartUpdated"));
     }
   };
 

@@ -73,3 +73,21 @@ export async function getUserData() {
     wishlistIds: (wishRes.data || []).map(r => r.book_id)
   };
 }
+
+export async function getCartDetails() {
+  const session = await auth();
+  if (!session?.user?.id) return { items: [] };
+
+  const { data, error } = await supabaseAdmin
+    .from("eb_cart_items")
+    .select("id, eb_books(*)")
+    .eq("user_id", session.user.id)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return { items: [] };
+
+  return { items: data.map((d: any) => ({
+    cart_id: d.id,
+    book: d.eb_books
+  }))};
+}
