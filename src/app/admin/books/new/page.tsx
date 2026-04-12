@@ -62,7 +62,7 @@ export default function NewBookPage() {
       {
         ...formData,
         image_url: finalImageUrl,
-        price: parseFloat(formData.price),
+        price: parseFloat(formData.price.replace(/\D/g, "") || "0"),
         seller_id: sellerId
       }
     ]);

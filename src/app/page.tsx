@@ -131,7 +131,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: idx * 0.1 }}
                   viewport={{ once: true }}
-                  className="min-w-[280px] snap-start group cursor-pointer"
+                  className="min-w-[280px] w-[280px] shrink-0 snap-start group cursor-pointer"
                 >
                   <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5 mb-6">
                     {book.image_url ? (
