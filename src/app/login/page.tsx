@@ -52,11 +52,11 @@ function LoginContent() {
         className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-black/5 border border-black/5"
       >
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-            <BookOpen className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+            <img src="/logo.jpg" alt="Re-Book Logo" className="w-10 h-auto" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-center">Chào mừng trở lại</h1>
-          <p className="text-foreground/50 text-center mt-2">Đăng nhập vào tài khoản EliteBooks của bạn</p>
+          <p className="text-foreground/50 text-center mt-2">Đăng nhập vào tài khoản Re-Book của bạn</p>
         </div>
 
         {isVerified && (

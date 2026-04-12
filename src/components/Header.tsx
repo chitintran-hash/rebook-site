@@ -28,8 +28,7 @@ export const Header = () => {
   return (
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 py-4 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-2 group">
-        <BookOpen className="w-8 h-8 text-primary group-hover:scale-110 transition-transform" />
-        <span className="text-2xl font-serif font-bold tracking-tight">Re-Book</span>
+        <img src="/logo.jpg" alt="Re-Book Logo" className="h-10 w-auto group-hover:scale-105 transition-transform" />
       </Link>
       
       <div className="hidden md:flex gap-8 font-bold text-sm tracking-wide">

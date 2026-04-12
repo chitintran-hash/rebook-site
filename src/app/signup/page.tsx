@@ -53,7 +53,7 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
             <UserPlus className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-serif font-bold text-center">Tham gia EliteBooks</h1>
+          <h1 className="text-3xl font-serif font-bold text-center">Tham gia Re-Book</h1>
           <p className="text-foreground/50 text-center mt-2">Bắt đầu hành trình tri thức của bạn</p>
         </div>
 
