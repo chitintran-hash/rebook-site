@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Star, Heart, ShoppingBag, Book, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,21 @@ import { supabase } from "@/lib/supabase";
 export default function Home() {
   const [books, setBooks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+
+  const heroImages = [
+    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2000&auto=format&fit=crop"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIdx((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -69,12 +84,19 @@ export default function Home() {
             className="relative"
           >
             <div className="aspect-square bg-primary/5 rounded-[4rem] flex items-center justify-center p-12">
-               <div className="w-full h-full glass rounded-[3rem] shadow-2xl flex items-center justify-center overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop" 
-                    alt="Featured Book"
-                    className="w-full h-full object-cover"
-                  />
+               <div className="w-full h-full glass rounded-[3rem] shadow-2xl flex items-center justify-center overflow-hidden relative">
+                  <AnimatePresence mode="wait">
+                    <motion.img 
+                      key={currentImageIdx}
+                      src={heroImages[currentImageIdx]} 
+                      alt="Featured Library"
+                      className="w-full h-full object-cover absolute inset-0"
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1 }}
+                    />
+                  </AnimatePresence>
                </div>
             </div>
             <div className="absolute -bottom-8 -left-8 glass p-6 rounded-3xl shadow-xl border border-white/50">
@@ -106,12 +128,7 @@ export default function Home() {
                 </div>
               ))
             ) : (
-              (books.length > 0 ? books : [
-                { id: 'f1', title: 'Nhà Giả Kim', author: 'Paulo Coelho', price: 89000, image_url: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop' },
-                { id: 'f2', title: 'Sapiens', author: 'Yuval Noah Harari', price: 155000, image_url: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop' },
-                { id: 'f3', title: 'Đắc Nhân Tâm', author: 'Dale Carnegie', price: 76000, image_url: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2000&auto=format&fit=crop' },
-                { id: 'f4', title: 'Suối Nguồn', author: 'Ayn Rand', price: 210000, image_url: 'https://images.unsplash.com/photo-1543005120-019f2ed5ecfe?q=80&w=2000&auto=format&fit=crop' }
-              ]).map((book, idx) => (
+              books.length > 0 ? books.map((book, idx) => (
                 <motion.div
                   key={book.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -144,7 +161,9 @@ export default function Home() {
                     <p className="text-lg font-black text-primary pt-2">{Number(book.price).toLocaleString()}đ</p>
                   </div>
                 </motion.div>
-              ))
+              )) : (
+                <p className="text-foreground/50 italic py-10 w-full text-center">Chưa có cuốn sách nào đăng bán.</p>
+              )
             )}
           </div>
         </div>
@@ -161,13 +180,7 @@ export default function Home() {
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
-            {[
-              { id: 1, title: 'Tâm lý học tội phạm', author: 'Nguyễn Văn A', img: 'https://images.unsplash.com/photo-1543005120-019f2ed5ecfe?q=80&w=200&auto=format&fit=crop' },
-              { id: 2, title: 'Chiến tranh và Hòa bình', author: 'Trần Thị B', img: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop' },
-              { id: 3, title: 'Lịch sử loài người', author: 'Lê Văn C', img: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=200&auto=format&fit=crop' },
-              { id: 4, title: 'Kinh tế học cho mọi người', author: 'Phạm Minh D', img: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=200&auto=format&fit=crop' },
-              { id: 5, title: 'Học cách học', author: 'Hoàng Anh E', img: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=200&auto=format&fit=crop' },
-            ].map((item, idx) => (
+            {books.length > 0 ? books.slice(0, 5).map((item, idx) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, x: 50 }}
@@ -176,12 +189,16 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="min-w-[320px] snap-start bg-white p-6 rounded-[2.5rem] shadow-xl shadow-black/5 flex gap-4 items-center group cursor-pointer hover:bg-primary hover:text-white transition-all transform active:scale-95"
               >
-                <div className="w-20 h-24 bg-black/5 rounded-2xl overflow-hidden shrink-0 group-hover:bg-white/20">
-                   <img 
-                     src={item.img} 
-                     alt={item.title}
-                     className="w-full h-full object-cover"
-                   />
+                <div className="w-20 h-24 bg-black/5 rounded-2xl overflow-hidden shrink-0 group-hover:bg-white/20 flex items-center justify-center">
+                   {item.image_url ? (
+                     <img 
+                       src={item.image_url} 
+                       alt={item.title}
+                       className="w-full h-full object-cover"
+                     />
+                   ) : (
+                     <Book className="w-8 h-8 text-black/10 group-hover:text-white/30" />
+                   )}
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary group-hover:text-white/80 mb-1">Trao đổi</p>
@@ -189,7 +206,9 @@ export default function Home() {
                   <p className="text-xs text-foreground/50 group-hover:text-white/60 truncate">Bởi: {item.author}</p>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+               <p className="text-foreground/50 italic py-5 w-full">Chưa có giao dịch trao đổi nào hôm nay.</p>
+            )}
           </div>
         </div>
       </section>

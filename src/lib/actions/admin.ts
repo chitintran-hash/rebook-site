@@ -1,10 +1,16 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export async function deleteBook(bookId: string) {
-  const { error } = await supabase
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Bạn không có quyền thực hiện hành động này." };
+  }
+
+  const { error } = await supabaseAdmin
     .from("eb_books")
     .delete()
     .eq("id", bookId);
@@ -20,7 +26,12 @@ export async function deleteBook(bookId: string) {
 }
 
 export async function fetchUsers() {
-  const { data, error } = await supabase
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Bạn không có quyền thực hiện hành động này." };
+  }
+
+  const { data, error } = await supabaseAdmin
     .from("eb_users")
     .select("id, email, full_name, role, created_at")
     .order("created_at", { ascending: false });
@@ -33,7 +44,12 @@ export async function fetchUsers() {
 }
 
 export async function deleteUser(userId: string) {
-  const { error } = await supabase
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return { error: "Bạn không có quyền thực hiện hành động này." };
+  }
+
+  const { error } = await supabaseAdmin
     .from("eb_users")
     .delete()
     .eq("id", userId);
