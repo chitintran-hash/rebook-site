@@ -28,7 +28,7 @@ export const Header = () => {
   return (
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 py-4 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-2 group">
-        <img src="/logo.png" alt="Re-Book Logo" className="h-[64px] min-h-[64px] w-auto group-hover:scale-105 transition-transform" />
+        <img src="/logo-pink.jpg" alt="Re-Book Logo" className="h-[80px] md:h-[96px] w-auto -my-4 md:-my-6 transition-transform group-hover:scale-105" />
       </Link>
       
       <div className="hidden md:flex gap-8 font-bold text-sm tracking-wide">
