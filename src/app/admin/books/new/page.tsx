@@ -9,11 +9,13 @@ import { supabase } from "@/lib/supabase";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { uploadBookCover } from "@/lib/actions/upload";
 
 export default function NewBookPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -43,9 +45,23 @@ export default function NewBookPage() {
       return;
     }
 
+    let finalImageUrl = formData.image_url;
+    if (coverFile) {
+      const uploadData = new FormData();
+      uploadData.append("file", coverFile);
+      const res = await uploadBookCover(uploadData);
+      if (res.error || !res.url) {
+        alert(res.error || "Có lỗi xảy ra khi tải ảnh.");
+        setIsLoading(false);
+        return;
+      }
+      finalImageUrl = res.url;
+    }
+
     const { error } = await supabase.from("eb_books").insert([
       {
         ...formData,
+        image_url: finalImageUrl,
         price: parseFloat(formData.price),
         seller_id: sellerId
       }
@@ -131,19 +147,16 @@ export default function NewBookPage() {
 
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Thể loại</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-black/5 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-primary/20 transition-all font-bold appearance-none cursor-pointer"
-                  required
-                >
-                  <option value="">Chọn thể loại</option>
-                  <option value="Literature">Văn học</option>
-                  <option value="Philosophy">Triết học</option>
-                  <option value="History">Lịch sử</option>
-                  <option value="Tech">Công nghệ</option>
-                  <option value="Business">Kinh doanh</option>
-                </select>
+                <div className="relative group">
+                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/20 group-focus-within:text-primary transition-colors" />
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full bg-black/5 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all font-bold"
+                    placeholder="Ví dụ: Tiểu thuyết, Kinh tế..."
+                  />
+                </div>
               </div>
             </div>
 
@@ -155,7 +168,6 @@ export default function NewBookPage() {
                   value={formData.condition}
                   onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
                   className="w-full bg-black/5 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-primary/20 transition-all font-bold appearance-none cursor-pointer"
-                  required
                 >
                   <option value="Like New">Like New</option>
                   <option value="Good">Good</option>
@@ -180,18 +192,28 @@ export default function NewBookPage() {
               </div>
             </div>
 
-            {/* Link ảnh bìa */}
+            {/* Upload ảnh bìa */}
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Link ảnh bìa</label>
-              <div className="relative group">
-                <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/20 group-focus-within:text-primary transition-colors" />
-                <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full bg-black/5 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all font-bold"
-                  placeholder="https://images.unsplash.com/..."
-                />
+              <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1">Ảnh bìa sách</label>
+              <div className="relative group flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1 relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                    className="w-full bg-black/5 border-none rounded-2xl py-3 px-4 focus:ring-2 focus:ring-primary/20 transition-all font-bold text-sm
+                             file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary file:text-white hover:file:opacity-90"
+                  />
+                </div>
+                {coverFile && (
+                  <div className="shrink-0">
+                    <img 
+                      src={URL.createObjectURL(coverFile)} 
+                      alt="Preview" 
+                      className="w-16 h-16 object-cover rounded-2xl shadow-lg border border-black/5"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

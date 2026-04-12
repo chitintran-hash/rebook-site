@@ -7,6 +7,7 @@ export async function signUp(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const fullName = formData.get("fullName") as string;
+  const phone = formData.get("phone") as string;
 
   if (!email || !password) {
     return { error: "Email và mật khẩu là bắt buộc." };
@@ -32,6 +33,7 @@ export async function signUp(formData: FormData) {
       email,
       password_hash: hashedPassword,
       full_name: fullName,
+      phone,
       role: "USER" // Default role
     }
   ]);
