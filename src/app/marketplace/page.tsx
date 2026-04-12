@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { motion } from "framer-motion";
-import { Search, Filter, Book, Heart, ShoppingBag, Loader2, Star } from "lucide-react";
+import { Search, Filter, Book, Heart, ShoppingBag, Loader2, Star, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { deleteBook } from "@/lib/actions/admin";
+import { toggleCartItem, toggleWishlistItem, getUserData } from "@/lib/actions/user-actions";
 
 const categories = ["Tất cả", "Literature", "Philosophy", "History", "Tech", "Business"];
 const conditions = ["Tất cả", "Like New", "Good", "Vintage"];
@@ -19,6 +22,24 @@ export default function MarketplacePage() {
   const [activeCondition, setActiveCondition] = useState("Tất cả");
   const [activeMood, setActiveMood] = useState("Tất cả");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const { data: session } = useSession();
+  const isAdmin = session?.user && (session.user as any).role === "ADMIN";
+
+  const [cartIds, setCartIds] = useState<string[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (session?.user) {
+      getUserData().then(res => {
+        setCartIds(res.cartIds);
+        setWishlistIds(res.wishlistIds);
+      });
+    } else {
+      setCartIds([]);
+      setWishlistIds([]);
+    }
+  }, [session]);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -56,6 +77,50 @@ export default function MarketplacePage() {
     }
     setFilteredBooks(result);
   }, [activeCategory, activeCondition, activeMood, searchQuery, books]);
+
+  const handleToggleCart = async (e: React.MouseEvent, bookId: string) => {
+    e.stopPropagation();
+    if (!session) {
+      alert("Vui lòng đăng nhập để thêm vào giỏ hàng");
+      return;
+    }
+    const isCarted = cartIds.includes(bookId);
+    setCartIds(prev => isCarted ? prev.filter(id => id !== bookId) : [...prev, bookId]);
+    
+    const res = await toggleCartItem(bookId);
+    if (res?.error) {
+      setCartIds(prev => isCarted ? [...prev, bookId] : prev.filter(id => id !== bookId));
+      alert(res.error);
+    }
+  };
+
+  const handleToggleWishlist = async (e: React.MouseEvent, bookId: string) => {
+    e.stopPropagation();
+    if (!session) {
+      alert("Vui lòng đăng nhập để yêu thích sách");
+      return;
+    }
+    const isWished = wishlistIds.includes(bookId);
+    setWishlistIds(prev => isWished ? prev.filter(id => id !== bookId) : [...prev, bookId]);
+
+    const res = await toggleWishlistItem(bookId);
+    if (res?.error) {
+      setWishlistIds(prev => isWished ? [...prev, bookId] : prev.filter(id => id !== bookId));
+      alert(res.error);
+    }
+  };
+
+  const handleDeleteBook = async (e: React.MouseEvent, bookId: string) => {
+    e.stopPropagation();
+    if (!confirm("Bạn có chắc chắn muốn xóa cuốn sách này? Việc này không thể hoàn tác.")) return;
+    
+    const res = await deleteBook(bookId);
+    if (res.success) {
+      setBooks(prev => prev.filter(b => b.id !== bookId));
+    } else {
+      alert(res.error);
+    }
+  };
 
   return (
     <main className="min-h-screen pt-24 pb-12 bg-background-soft">
@@ -172,12 +237,33 @@ export default function MarketplacePage() {
                       <Book className="w-12 h-12 text-primary/20" />
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors">
-                      <Heart className="w-5 h-5" />
+                  {isAdmin && (
+                    <button 
+                      onClick={(e) => handleDeleteBook(e, book.id)}
+                      className="absolute top-4 left-4 w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10"
+                      title="Xoá sách (ADMIN)"
+                    >
+                      <Trash2 className="w-5 h-5" />
                     </button>
-                    <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors">
-                      <ShoppingBag className="w-5 h-5" />
+                  )}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-10">
+                    <button 
+                      onClick={(e) => handleToggleWishlist(e, book.id)}
+                      className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors",
+                        wishlistIds.includes(book.id) ? "bg-red-500 text-white" : "bg-white hover:bg-primary hover:text-white"
+                      )}
+                    >
+                      <Heart className="w-5 h-5 transition-transform active:scale-75" />
+                    </button>
+                    <button 
+                      onClick={(e) => handleToggleCart(e, book.id)}
+                      className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors",
+                        cartIds.includes(book.id) ? "bg-primary text-white" : "bg-white hover:bg-primary hover:text-white"
+                      )}
+                    >
+                      <ShoppingBag className="w-5 h-5 transition-transform active:scale-75" />
                     </button>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500">
