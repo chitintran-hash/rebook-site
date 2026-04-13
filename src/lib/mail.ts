@@ -39,8 +39,8 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
   try {
     if (!user || user === '""' || user === '') {
-        console.log("Mock Email (No config): ", confirmLink);
-        return { success: true };
+        console.error("Missing EMAIL config");
+        return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings (hoặc .env.local). Hệ thống không thể gửi email." };
     }
     await transporter.sendMail(mailOptions);
     return { success: true };
@@ -70,8 +70,8 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
 
   try {
     if (!user || user === '""' || user === '') {
-        console.log("Mock Email (No config): ", resetLink);
-        return { success: true };
+        console.error("Missing EMAIL config");
+        return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings. Hệ thống không thể gửi email đổi mật khẩu." };
     }
     await transporter.sendMail(mailOptions);
     return { success: true };

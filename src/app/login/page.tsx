@@ -9,12 +9,16 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { resendVerification } from "@/lib/actions/auth";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showResend, setShowResend] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const isVerified = searchParams.get("verified") === "true";
@@ -34,6 +38,9 @@ function LoginContent() {
 
       if (result?.error) {
         setError("Đăng nhập thất bại. Email/Mật khẩu không đúng, hoặc tài khoản chưa được xác thực.");
+        if (result.error.toLowerCase().includes("xác thực") || result.error.includes("verify")) {
+          setShowResend(true);
+        }
       } else {
         router.push("/");
       }
@@ -42,6 +49,16 @@ function LoginContent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleResend = async () => {
+    setIsResending(true);
+    setResendSuccess("");
+    setError("");
+    const res = await resendVerification(email);
+    if (res?.error) setError(res.error);
+    else setResendSuccess(res?.message || "Đã gửi!");
+    setIsResending(false);
   };
 
   return (
@@ -110,10 +127,27 @@ function LoginContent() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-medium flex items-center gap-2"
+                className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-medium flex flex-col items-start gap-2"
               >
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                {error}
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  {error}
+                </div>
+                {showResend && !resendSuccess && (
+                  <button type="button" onClick={handleResend} disabled={isResending} className="mt-2 w-full bg-white text-red-600 font-bold py-2 rounded-xl text-xs hover:bg-red-100 transition-colors">
+                    {isResending ? "Đang gửi..." : "Gửi lại Email Xác Thực"}
+                  </button>
+                )}
+              </motion.div>
+            )}
+            {resendSuccess && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="bg-green-50 text-green-600 p-4 rounded-2xl text-sm font-medium flex items-center gap-2"
+              >
+                 <BookOpen className="w-5 h-5 flex-shrink-0" />
+                 {resendSuccess}
               </motion.div>
             )}
           </AnimatePresence>

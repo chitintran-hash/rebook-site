@@ -52,7 +52,11 @@ export async function signUp(formData: FormData) {
   }
 
   // Send verification email
-  await sendVerificationEmail(email, verifyToken);
+  const mailRes = await sendVerificationEmail(email, verifyToken);
+  
+  if (mailRes?.error) {
+    return { success: true, message: "Tạo thành công, nhưng cấu hình Vercel EMAIL_PASS bị sai: " + mailRes.error };
+  }
 
   return { success: true, message: "Vui lòng kiểm tra hộp thư email để xác thực tài khoản." };
 }
@@ -151,4 +155,30 @@ export async function resetPassword(formData: FormData) {
   }
 
   return { success: true };
+}
+
+export async function resendVerification(email: string) {
+  if (!email) return { error: "Không tìm thấy email." };
+
+  const { data: user } = await supabaseAdmin
+    .from("eb_users")
+    .select("id, email_verified, verify_token")
+    .eq("email", email)
+    .single();
+
+  if (!user) return { error: "Tài khoản không tồn tại." };
+  if (user.email_verified) return { error: "Tài khoản đã được xác thực." };
+
+  let token = user.verify_token;
+  if (!token) {
+    token = uuidv4();
+    await supabaseAdmin.from("eb_users").update({ verify_token: token }).eq("id", user.id);
+  }
+
+  const mailRes = await sendVerificationEmail(email, token);
+  if (mailRes?.error) {
+    return { error: "Lỗi cấu hình Vercel EMAIL_PASS: " + mailRes.error };
+  }
+
+  return { success: true, message: "Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư." };
 }
