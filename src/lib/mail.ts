@@ -40,13 +40,13 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   try {
     if (!user || user === '""' || user === '') {
         console.error("Missing EMAIL config");
-        return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings (hoặc .env.local). Hệ thống không thể gửi email." };
+        return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings. Hãy kiểm tra lại tab Environment Variables." };
     }
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
     console.error("Gửi mail thất bại: ", error);
-    return { error: "Không thể gửi email xác thực. Vui lòng thử lại sau." };
+    return { error: "Lỗi SMTP: " + (error as any).message };
   }
 };
 
