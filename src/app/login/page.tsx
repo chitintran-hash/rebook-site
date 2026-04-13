@@ -38,9 +38,8 @@ function LoginContent() {
 
       if (result?.error) {
         setError("Đăng nhập thất bại. Email/Mật khẩu không đúng, hoặc tài khoản chưa được xác thực.");
-        if (result.error.toLowerCase().includes("xác thực") || result.error.includes("verify")) {
-          setShowResend(true);
-        }
+        // Hiển thị nút Gửi lại email cho bất kỳ lỗi nào để dự phòng
+        setShowResend(true);
       } else {
         router.push("/");
       }

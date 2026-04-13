@@ -1,15 +1,14 @@
 import nodemailer from 'nodemailer';
 
-const user = process.env.EMAIL_USER;
-const pass = process.env.EMAIL_PASS;
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: user,
-    pass: pass,
-  },
-});
+const getTransporter = () => {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+};
 
 const getAppUrl = () => {
   if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
@@ -19,6 +18,7 @@ const getAppUrl = () => {
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${getAppUrl()}/verify-email?token=${token}`;
+  const user = process.env.EMAIL_USER;
 
   const mailOptions = {
     from: `"Re-Book Team" <${user}>`,
@@ -42,6 +42,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         console.error("Missing EMAIL config");
         return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings. Hãy kiểm tra lại tab Environment Variables." };
     }
+    const transporter = getTransporter();
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
@@ -52,6 +53,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetLink = `${getAppUrl()}/reset-password?token=${token}`;
+  const user = process.env.EMAIL_USER;
 
   const mailOptions = {
     from: `"Re-Book Team" <${user}>`,
@@ -73,10 +75,12 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
         console.error("Missing EMAIL config");
         return { error: "Bạn chưa điền đúng EMAIL_USER và EMAIL_PASS trong Vercel Settings. Hệ thống không thể gửi email đổi mật khẩu." };
     }
+    const transporter = getTransporter();
     await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
     console.error("Gửi mail thất bại: ", error);
-    return { error: "Không thể gửi email. Vui lòng thử lại sau." };
+    return { error: "Lỗi SMTP: " + (error as any).message };
   }
 };
+
