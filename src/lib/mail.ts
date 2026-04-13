@@ -29,8 +29,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
         <h2 style="color: #2F9464;">Chào mừng đến với Re-Book! 📚</h2>
         <p>Cảm ơn bạn đã đăng ký tài khoản. Vui lòng bấm vào nút bên dưới để xác thực địa chỉ email của bạn:</p>
         <a href="${confirmLink}" style="display: inline-block; padding: 12px 24px; margin-top: 15px; margin-bottom: 20px; background-color: #2F9464; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Xác Nhận Email</a>
-        <p style="font-size: 12px; color: #888;">Nếu nút bấm không hoạt động, bạn có thể copy đường link dưới đây và dán vào trình duyệt:</p>
-        <p style="font-size: 12px; color: #888; word-break: break-all;">${confirmLink}</p>
         <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
         <p style="font-size: 10px; color: #aaa;">Đây là email tự động, vui lòng không phản hồi.</p>
       </div>
@@ -65,7 +63,6 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
         <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với email này.</p>
         <p>Nhấp vào nút dưới đây để tạo mật khẩu mới. Bỏ qua email này nếu đây không phải yêu cầu của bạn.</p>
         <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; margin-top: 15px; margin-bottom: 20px; background-color: #2F9464; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Đặt Lại Mật Khẩu</a>
-        <p style="font-size: 12px; color: #888; word-break: break-all;">${resetLink}</p>
       </div>
     `,
   };
