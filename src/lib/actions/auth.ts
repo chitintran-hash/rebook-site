@@ -16,19 +16,19 @@ export async function signUp(formData: FormData) {
     return { error: "Email và mật khẩu là bắt buộc." };
   }
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Check if user exists
-  const { data: existingUser } = await supabase
+  // Check if user exists (use limit to avoid .single() error)
+  const { data: existingUsers } = await supabaseAdmin
     .from("eb_users")
     .select("id")
     .eq("email", email)
-    .single();
+    .limit(1);
 
-  if (existingUser) {
-    return { error: "Email này đã được đăng ký." };
+  if (existingUsers && existingUsers.length > 0) {
+    return { error: "Email này đã được đăng ký. Vui lòng quay lại trang Đăng nhập." };
   }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Generate verification token
   const verifyToken = uuidv4();
