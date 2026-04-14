@@ -182,3 +182,10 @@ export async function resendVerification(email: string) {
 
   return { success: true, message: "Đã gửi lại email xác thực. Vui lòng kiểm tra hộp thư." };
 }
+
+export async function checkSmtpHealth() {
+  const { sendVerificationEmail } = await import("@/lib/mail");
+  const testEmail = "tranchitin03072006@gmail.com";
+  const res = await sendVerificationEmail(testEmail, "DIAGNOSTIC-TEST-ONLY");
+  return res;
+}

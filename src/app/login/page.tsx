@@ -37,9 +37,17 @@ function LoginContent() {
       });
 
       if (result?.error) {
-        setError("Đăng nhập thất bại. Email/Mật khẩu không đúng, hoặc tài khoản chưa được xác thực.");
-        // Hiển thị nút Gửi lại email cho bất kỳ lỗi nào để dự phòng
-        setShowResend(true);
+        // NextAuth v5 surfaces the error message if throw Error in authorize
+        // But if it's generic, we fallback.
+        const errorMessage = result.error.includes("xác thực") 
+          ? "Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra email."
+          : "Đăng nhập thất bại. Email hoặc Mật khẩu không chính xác.";
+        
+        setError(errorMessage);
+        // Show resend button if it's a verification issue OR as a fallback
+        if (result.error.toLowerCase().includes("xác thực") || result.error.includes("CredentialsSignin")) {
+          setShowResend(true);
+        }
       } else {
         router.push("/");
       }
