@@ -36,9 +36,7 @@ export default function SignupPage() {
       setIsLoading(false);
     } else {
       setSuccess(true);
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      setIsLoading(false);
     }
   };
 
@@ -66,8 +64,18 @@ export default function SignupPage() {
             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
-            <h2 className="text-2xl font-serif font-bold mb-2">Đăng ký thành công!</h2>
-            <p className="text-foreground/50">Đang chuyển bạn đến trang đăng nhập...</p>
+            <h2 className="text-2xl font-serif font-bold mb-2 text-green-900">Đăng ký thành công!</h2>
+            <div className="space-y-4">
+              <p className="text-foreground font-medium bg-green-50 p-4 rounded-2xl border border-green-100">
+                📩 Vui lòng kiểm tra hộp thư email của bạn để xác thực tài khoản trước khi đăng nhập.
+              </p>
+              <Link 
+                href="/login" 
+                className="inline-flex items-center gap-2 text-primary font-bold hover:underline mt-4"
+              >
+                Tiếp tục đến trang Đăng nhập <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
