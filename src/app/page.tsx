@@ -7,11 +7,15 @@ import { ArrowRight, Star, Heart, ShoppingBag, Book, Loader2 } from "lucide-reac
 import { Header } from "@/components/Header";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { toggleWishlistItem, getUserData } from "@/lib/actions/user-actions";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const [books, setBooks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const { data: session } = useSession();
 
   const heroImages = [
     "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop",
@@ -40,6 +44,27 @@ export default function Home() {
     };
     fetchBooks();
   }, []);
+
+  useEffect(() => {
+    if (session?.user) {
+      getUserData().then(res => setWishlistIds(res.wishlistIds));
+    } else {
+      setWishlistIds([]);
+    }
+  }, [session]);
+
+  const handleToggleWishlist = async (e: React.MouseEvent, bookId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session) {
+      alert("Vui lòng đăng nhập để yêu thích sách");
+      return;
+    }
+    const isWished = wishlistIds.includes(bookId);
+    setWishlistIds(prev => isWished ? prev.filter(id => id !== bookId) : [...prev, bookId]);
+    
+    await toggleWishlistItem(bookId);
+  };
 
   return (
     <main className="min-h-screen pt-24 pb-12 overflow-x-hidden">
@@ -148,9 +173,15 @@ export default function Home() {
                            <Book className="w-12 h-12 text-primary/20" />
                         </div>
                       )}
-                      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                        <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors">
-                          <Heart className="w-5 h-5" />
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        <button 
+                          onClick={(e) => handleToggleWishlist(e, book.id)}
+                          className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-colors",
+                            wishlistIds.includes(book.id) ? "bg-red-500 text-white" : "bg-white hover:bg-primary hover:text-white"
+                          )}
+                        >
+                          <Heart className={cn("w-5 h-5", wishlistIds.includes(book.id) && "fill-current")} />
                         </button>
                       </div>
                     </div>
