@@ -5,12 +5,13 @@ import { useSession, signOut } from "next-auth/react";
 import { BookOpen, Search, ShoppingBag, User, LogOut, LayoutDashboard, Wallet, Inbox, Plus } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { getUserData } from "@/lib/actions/user-actions";
+import { getUserData, getUserWallet } from "@/lib/actions/user-actions";
 
 export const Header = () => {
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
   const [cartCount, setCartCount] = useState(0);
+  const [coins, setCoins] = useState(0);
 
   useEffect(() => {
     const fetchCart = () => {
@@ -19,10 +20,23 @@ export const Header = () => {
       }
     };
     
+    const fetchWallet = () => {
+      if (session?.user) {
+        getUserWallet().then(res => {
+          if (res.success) setCoins(res.coins);
+        });
+      }
+    };
+    
     fetchCart();
+    fetchWallet();
     
     window.addEventListener("cartUpdated", fetchCart);
-    return () => window.removeEventListener("cartUpdated", fetchCart);
+    window.addEventListener("walletUpdated", fetchWallet);
+    return () => {
+      window.removeEventListener("cartUpdated", fetchCart);
+      window.removeEventListener("walletUpdated", fetchWallet);
+    };
   }, [session]);
 
   return (
@@ -51,6 +65,13 @@ export const Header = () => {
         <button className="p-2 hover:bg-black/5 rounded-full transition-colors hidden sm:block">
           <Search className="w-5 h-5" />
         </button>
+
+        {session && (
+          <div className="hidden lg:flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 hover:bg-primary/20 transition-all cursor-pointer group">
+            <Wallet className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-black text-primary">{coins.toLocaleString()} <span className="text-[10px] uppercase">COINS</span></span>
+          </div>
+        )}
         
         {session ? (
           <div className="flex items-center gap-2 pl-4 border-l border-black/5">

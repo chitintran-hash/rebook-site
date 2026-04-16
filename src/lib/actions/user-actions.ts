@@ -80,7 +80,7 @@ export async function getCartDetails() {
 
   const { data, error } = await supabaseAdmin
     .from("eb_cart_items")
-    .select("id, eb_books(*)")
+    .select("id, quantity, eb_books(*)")
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
 
@@ -88,6 +88,57 @@ export async function getCartDetails() {
 
   return { items: data.map((d: any) => ({
     cart_id: d.id,
+    quantity: d.quantity || 1,
     book: d.eb_books
   }))};
+}
+
+export async function updateCartQuantity(cartId: string, quantity: number) {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Vui lòng đăng nhập" };
+
+  if (quantity <= 0) {
+    await supabaseAdmin.from("eb_cart_items").delete().eq("id", cartId).eq("user_id", session.user.id);
+    return { success: true, message: "Đã xoá sách khỏi giỏ hàng" };
+  }
+
+  const { error } = await supabaseAdmin
+    .from("eb_cart_items")
+    .update({ quantity })
+    .match({ id: cartId, user_id: session.user.id });
+
+  if (error) return { error: "Không thể cập nhật số lượng" };
+  return { success: true };
+}
+
+export async function getUserWallet() {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Vui lòng đăng nhập", balance: 0, coins: 0 };
+
+  const userId = session.user.id;
+
+  // Try to get wallet
+  let { data: wallet, error } = await supabaseAdmin
+    .from("eb_wallets")
+    .select("cash_balance, book_coins")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !wallet) {
+    // Create wallet if not exists
+    const { data: newWallet, error: createError } = await supabaseAdmin
+      .from("eb_wallets")
+      .insert({ user_id: userId, cash_balance: 0, book_coins: 0 })
+      .select("cash_balance, book_coins")
+      .single();
+    
+    if (createError) return { error: "Không thể khởi tạo ví", balance: 0, coins: 0 };
+    wallet = newWallet;
+  }
+
+  return { 
+    success: true, 
+    balance: Number(wallet.cash_balance), 
+    coins: Number(wallet.book_coins) 
+  };
 }

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
-import { Trash2, Book, ArrowRight, Loader2 } from "lucide-react";
-import { getCartDetails, toggleCartItem } from "@/lib/actions/user-actions";
+import { Trash2, Book, ArrowRight, Loader2, Plus, Minus } from "lucide-react";
+import { getCartDetails, toggleCartItem, updateCartQuantity } from "@/lib/actions/user-actions";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -28,7 +28,16 @@ export default function CartPage() {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  const total = items.reduce((sum, item) => sum + (item.book?.price || 0), 0);
+  const changeQuantity = async (cartId: string, newQuantity: number) => {
+    if (newQuantity <= 0) return; // Users should use remove button to delete entirely if needed
+    // optimistic update
+    setItems(items.map(i => i.cart_id === cartId ? { ...i, quantity: newQuantity } : i));
+    await updateCartQuantity(cartId, newQuantity);
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
+  const total = items.reduce((sum, item) => sum + (item.book?.price || 0) * (item.quantity || 1), 0);
+  const totalItemsCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   return (
     <main className="min-h-screen pt-24 pb-12 bg-background-soft">
@@ -72,14 +81,36 @@ export default function CartPage() {
                       <h3 className="text-xl font-bold font-serif mb-1">{item.book?.title}</h3>
                       <p className="text-sm text-foreground/50 mb-3">{item.book?.author}</p>
                       <p className="font-black text-primary text-lg">{Number(item.book?.price || 0).toLocaleString()}đ</p>
+                      
+                      <div className="flex items-center gap-3 mt-4">
+                        <button 
+                          onClick={() => changeQuantity(item.cart_id, (item.quantity || 1) - 1)} 
+                          disabled={(item.quantity || 1) <= 1}
+                          className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="font-bold w-4 text-center">{item.quantity || 1}</span>
+                        <button 
+                          onClick={() => changeQuantity(item.cart_id, (item.quantity || 1) + 1)} 
+                          className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-all"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => removeItem(item.book.id)}
-                      className="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors shrink-0"
-                      title="Xóa khỏi giỏ hàng"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <p className="font-bold text-lg mb-4 text-slate-800">
+                        {((item.book?.price || 0) * (item.quantity || 1)).toLocaleString()}đ
+                      </p>
+                      <button
+                        onClick={() => removeItem(item.book.id)}
+                        className="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+                        title="Xóa khỏi giỏ hàng"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -90,7 +121,7 @@ export default function CartPage() {
                 <h3 className="text-2xl font-serif font-bold mb-6">Tóm Tắt</h3>
                 <div className="space-y-4 mb-6 text-sm font-medium">
                   <div className="flex justify-between">
-                    <span className="text-foreground/60">Tạm tính ({items.length} cuốn)</span>
+                    <span className="text-foreground/60">Số lượng ({totalItemsCount} cuốn)</span>
                     <span>{total.toLocaleString()}đ</span>
                   </div>
                   <div className="flex justify-between">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, Book, DollarSign, Tag, AlignLeft, Image as ImageIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Book, DollarSign, Tag, AlignLeft, Image as ImageIcon, Loader2, Wallet } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "next-auth/react";
@@ -24,7 +24,8 @@ export default function NewBookPage() {
     condition: "Good",
     mood: "",
     description: "",
-    image_url: ""
+    image_url: "",
+    book_coins: "0"
   });
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function NewBookPage() {
         ...formData,
         image_url: finalImageUrl,
         price: parseFloat(formData.price.replace(/\D/g, "") || "0"),
+        book_coins: parseInt(formData.book_coins || "0"),
         seller_id: sellerId
       }
     ]);
@@ -157,6 +159,25 @@ export default function NewBookPage() {
                     placeholder="Ví dụ: Tiểu thuyết, Kinh tế..."
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Row 2b: Book Coins */}
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-foreground/40 ml-1 flex items-center gap-2">
+                Giá trị Book Coin (Xu)
+                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px]">Hệ thống mới</span>
+              </label>
+              <div className="relative group">
+                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/20 group-focus-within:text-primary transition-colors" />
+                <input
+                  type="number"
+                  required
+                  value={formData.book_coins}
+                  onChange={(e) => setFormData({ ...formData, book_coins: e.target.value })}
+                  className="w-full bg-black/5 border-none rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all font-bold"
+                  placeholder="Ví dụ: 10"
+                />
               </div>
             </div>
 
