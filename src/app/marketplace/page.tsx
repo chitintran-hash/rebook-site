@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { deleteBook } from "@/lib/actions/admin";
 import { toggleCartItem, toggleWishlistItem, getUserData } from "@/lib/actions/user-actions";
+import Link from "next/link";
 
 const categories = ["Tất cả", "Literature", "Philosophy", "History", "Tech", "Business"];
 const conditions = ["Tất cả", "Like New", "Good", "Vintage"];
-const moods = ["Tất cả", "Hứng khởi", "Sâu sắc", "Chill", "Trầm mặc", "Phiêu lưu"];
 
 export default function MarketplacePage() {
   const [books, setBooks] = useState<any[]>([]);
@@ -20,7 +20,6 @@ export default function MarketplacePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("Tất cả");
   const [activeCondition, setActiveCondition] = useState("Tất cả");
-  const [activeMood, setActiveMood] = useState("Tất cả");
   const [searchQuery, setSearchQuery] = useState("");
   const [maxCoinFilter, setMaxCoinFilter] = useState<number | null>(null);
   
@@ -67,9 +66,6 @@ export default function MarketplacePage() {
     if (activeCondition !== "Tất cả") {
       result = result.filter(b => b.condition === activeCondition);
     }
-    if (activeMood !== "Tất cả") {
-      result = result.filter(b => b.mood === activeMood);
-    }
     if (maxCoinFilter !== null) {
       result = result.filter(b => (b.book_coins || 0) <= maxCoinFilter);
     }
@@ -80,10 +76,11 @@ export default function MarketplacePage() {
       );
     }
     setFilteredBooks(result);
-  }, [activeCategory, activeCondition, activeMood, searchQuery, maxCoinFilter, books]);
+  }, [activeCategory, activeCondition, searchQuery, maxCoinFilter, books]);
 
   const handleToggleCart = async (e: React.MouseEvent, bookId: string) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!session) {
       alert("Vui lòng đăng nhập để thêm vào giỏ hàng");
       return;
@@ -102,6 +99,7 @@ export default function MarketplacePage() {
 
   const handleToggleWishlist = async (e: React.MouseEvent, bookId: string) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!session) {
       alert("Vui lòng đăng nhập để yêu thích sách");
       return;
@@ -118,6 +116,7 @@ export default function MarketplacePage() {
 
   const handleDeleteBook = async (e: React.MouseEvent, bookId: string) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!confirm("Bạn có chắc chắn muốn xóa cuốn sách này? Việc này không thể hoàn tác.")) return;
     
     const res = await deleteBook(bookId);
@@ -229,39 +228,67 @@ export default function MarketplacePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="group cursor-pointer bg-white rounded-[2rem] p-3 md:p-4 shadow-xl shadow-black/5 border border-transparent hover:border-primary/10 transition-all"
+                className="group cursor-pointer bg-white rounded-[2rem] p-3 md:p-4 shadow-xl shadow-black/5 border border-transparent hover:border-primary/10 transition-all relative"
               >
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4">
-                  {book.image_url ? (
-                    <img 
-                      src={book.image_url} 
-                      alt={book.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-primary/5 flex items-center justify-center">
-                      <Book className="w-12 h-12 text-primary/20" />
+                <Link href={`/book/${book.id}`} className="block">
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4">
+                    {book.image_url ? (
+                      <img 
+                        src={book.image_url} 
+                        alt={book.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-primary/5 flex items-center justify-center">
+                        <Book className="w-12 h-12 text-primary/20" />
+                      </div>
+                    )}
+
+                    {/* Condition Badge */}
+                    <div className={cn(
+                      "absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg z-10",
+                      book.condition === "Like New" ? "bg-green-500 text-white" : 
+                      book.condition === "Vintage" ? "bg-amber-600 text-white" : "bg-blue-500 text-white"
+                    )}>
+                      {book.condition}
                     </div>
-                  )}
-
-                  {/* Condition Badge */}
-                  <div className={cn(
-                    "absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg z-10",
-                    book.condition === "Like New" ? "bg-green-500 text-white" : 
-                    book.condition === "Vintage" ? "bg-amber-600 text-white" : "bg-blue-500 text-white"
-                  )}>
-                    {book.condition}
                   </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div>
+                      <h3 className="text-base md:text-lg font-serif font-bold truncate pr-2">{book.title}</h3>
+                      <p className="text-xs text-foreground/50 truncate">{book.author}</p>
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 pt-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-lg font-black text-primary">{book.price?.toLocaleString()}đ</p>
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-full">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span>4.8</span>
+                        </div>
+                      </div>
+                      {book.book_coins > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/5 px-3 py-2 rounded-xl border border-primary/10">
+                          <Wallet className="w-3.5 h-3.5" />
+                          <span>{book.book_coins} Book Coins</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
 
-                  {isAdmin && (
-                    <button 
-                      onClick={(e) => handleDeleteBook(e, book.id)}
-                      className="absolute bottom-3 left-3 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-10"
-                      title="Xoá sách (ADMIN)"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                {isAdmin && (
+                  <button 
+                    onClick={(e) => handleDeleteBook(e, book.id)}
+                    className="absolute top-[18px] right-3 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors z-20"
+                    title="Xoá sách (ADMIN)"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                
+                {!isAdmin && (
                   <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
                     <button 
                       onClick={(e) => handleToggleWishlist(e, book.id)}
@@ -273,43 +300,20 @@ export default function MarketplacePage() {
                       <Heart className="w-4 h-4" />
                     </button>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div>
-                    <h3 className="text-base md:text-lg font-serif font-bold truncate pr-2">{book.title}</h3>
-                    <p className="text-xs text-foreground/50 truncate">{book.author}</p>
-                  </div>
-                  
-                  <div className="flex flex-col gap-1 pt-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-black text-primary">{book.price?.toLocaleString()}đ</p>
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-accent px-2 py-0.5 bg-accent/10 rounded-full">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span>4.8</span>
-                      </div>
-                    </div>
-                    {book.book_coins > 0 && (
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/5 px-3 py-2 rounded-xl border border-primary/10">
-                        <Wallet className="w-3.5 h-3.5" />
-                        <span>{book.book_coins} Book Coins</span>
-                      </div>
-                    )}
-                  </div>
+                )}
 
-                  <button 
-                    onClick={(e) => handleToggleCart(e, book.id)}
-                    className={cn(
-                      "w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all mt-2 active:scale-95",
-                      cartIds.includes(book.id) 
-                        ? "bg-green-500 text-white shadow-lg shadow-green-200" 
-                        : "bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
-                    )}
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    {cartIds.includes(book.id) ? "Đã thêm" : "Thêm vào giỏ"}
-                  </button>
-                </div>
+                <button 
+                  onClick={(e) => handleToggleCart(e, book.id)}
+                  className={cn(
+                    "w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 z-20 relative",
+                    cartIds.includes(book.id) 
+                      ? "bg-green-500 text-white shadow-lg shadow-green-200" 
+                      : "bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+                  )}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  {cartIds.includes(book.id) ? "Đã thêm" : "Thêm vào giỏ"}
+                </button>
               </motion.div>
             ))}
           </div>

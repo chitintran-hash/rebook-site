@@ -125,38 +125,42 @@ export default function Home() {
               ))
             ) : (
               books.length > 0 ? books.map((book, idx) => (
-                <motion.div
+                <Link
                   key={book.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                  viewport={{ once: true }}
+                  href={`/book/${book.id}`}
                   className="min-w-[280px] w-[280px] shrink-0 snap-start group cursor-pointer"
                 >
-                  <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5 mb-6">
-                    {book.image_url ? (
-                      <img 
-                        src={book.image_url} 
-                        alt={book.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-primary/5 flex items-center justify-center">
-                         <Book className="w-12 h-12 text-primary/20" />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-black/5 mb-6">
+                      {book.image_url ? (
+                        <img 
+                          src={book.image_url} 
+                          alt={book.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-primary/5 flex items-center justify-center">
+                           <Book className="w-12 h-12 text-primary/20" />
+                        </div>
+                      )}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors">
+                          <Heart className="w-5 h-5" />
+                        </button>
                       </div>
-                    )}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                      <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary hover:text-white transition-colors">
-                        <Heart className="w-5 h-5" />
-                      </button>
                     </div>
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-serif font-bold truncate">{book.title}</h3>
-                    <p className="text-sm text-foreground/50">{book.author}</p>
-                    <p className="text-lg font-black text-primary pt-2">{Number(book.price).toLocaleString()}đ</p>
-                  </div>
-                </motion.div>
+                    <div className="space-y-1">
+                      <h3 className="text-xl font-serif font-bold truncate">{book.title}</h3>
+                      <p className="text-sm text-foreground/50">{book.author}</p>
+                      <p className="text-lg font-black text-primary pt-2">{Number(book.price).toLocaleString()}đ</p>
+                    </div>
+                  </motion.div>
+                </Link>
               )) : (
                 <p className="text-foreground/50 italic py-10 w-full text-center">Chưa có cuốn sách nào đăng bán.</p>
               )
@@ -177,12 +181,9 @@ export default function Home() {
 
           <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
             {books.length > 0 ? books.slice(0, 5).map((item, idx) => (
-              <motion.div
+              <Link
                 key={item.id}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                viewport={{ once: true }}
+                href={`/book/${item.id}`}
                 className="min-w-[320px] snap-start bg-white p-6 rounded-[2.5rem] shadow-xl shadow-black/5 flex gap-4 items-center group cursor-pointer hover:bg-primary hover:text-white transition-all transform active:scale-95"
               >
                 <div className="w-20 h-24 bg-black/5 rounded-2xl overflow-hidden shrink-0 group-hover:bg-white/20 flex items-center justify-center">
@@ -201,7 +202,7 @@ export default function Home() {
                   <h4 className="font-serif font-bold text-lg mb-1 truncate">{item.title}</h4>
                   <p className="text-xs text-foreground/50 group-hover:text-white/60 truncate">Bởi: {item.author}</p>
                 </div>
-              </motion.div>
+              </Link>
             )) : (
                <p className="text-foreground/50 italic py-5 w-full">Chưa có giao dịch trao đổi nào hôm nay.</p>
             )}
