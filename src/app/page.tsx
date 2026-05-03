@@ -18,7 +18,6 @@ export default function Home() {
   const { data: session } = useSession();
 
   const heroImages = [
-    "/hero-cover.jpg",
     "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2000&auto=format&fit=crop",
@@ -70,6 +69,17 @@ export default function Home() {
   return (
     <main className="min-h-screen pt-24 pb-12 overflow-x-hidden">
       <Header />
+
+      {/* Cover Banner */}
+      <section className="px-6 pt-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-7xl mx-auto w-full aspect-[21/9] md:aspect-[3/1] lg:aspect-[4/1] rounded-3xl overflow-hidden shadow-2xl relative bg-[#092652]"
+        >
+          <img src="/hero-cover.jpg" alt="Re-Book Cover" className="w-full h-full object-cover object-center" />
+        </motion.div>
+      </section>
 
       {/* Hero Section */}
       <section className="px-6 py-20 lg:py-32 relative">
