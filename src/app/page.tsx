@@ -79,8 +79,8 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-6xl lg:text-8xl font-serif font-bold leading-tight mb-8">
-              Khai mở <br />
-              <span className="text-primary italic">Tri thức</span> mới
+              Giữ lại <span className="text-primary italic">tri thức</span>, <br />
+              trao đi câu chuyện
             </h1>
             <p className="text-xl text-foreground/60 mb-12 max-w-lg leading-relaxed">
               Khám phá bộ sưu tập sách được tuyển chọn kỹ lưỡng, từ văn học kinh điển đến công nghệ hiện đại. 
