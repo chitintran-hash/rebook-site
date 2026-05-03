@@ -18,6 +18,7 @@ export default function Home() {
   const { data: session } = useSession();
 
   const heroImages = [
+    "/hero-cover.jpg",
     "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=2787&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2000&auto=format&fit=crop",
