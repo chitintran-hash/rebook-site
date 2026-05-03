@@ -48,8 +48,8 @@ export default function SignupPage() {
         className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-black/5 border border-black/5"
       >
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-            <UserPlus className="w-8 h-8 text-primary" />
+          <div className="w-32 h-32 bg-primary/5 rounded-[2rem] flex items-center justify-center mb-6 overflow-hidden border border-primary/20 shadow-xl shadow-primary/5">
+            <img src="/logo.png" alt="Re-Book Logo" className="w-[120px] h-auto scale-110" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-center">Tham gia Re-Book</h1>
           <p className="text-foreground/50 text-center mt-2">Bắt đầu hành trình tri thức của bạn</p>
