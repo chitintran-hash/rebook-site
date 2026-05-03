@@ -48,7 +48,6 @@ export const Header = () => {
       <div className="hidden md:flex gap-8 font-bold text-sm tracking-wide">
         <Link href="/" className="hover:text-primary transition-colors uppercase">Trang chủ</Link>
         <Link href="/marketplace" className="hover:text-primary transition-colors uppercase">Khám phá sách</Link>
-        <Link href="#" className="hover:text-primary transition-colors uppercase">Thể loại</Link>
         {session?.user && (
           <Link href="/admin/books/new" className="text-primary hover:scale-105 transition-all flex items-center gap-1 uppercase font-black">
             <Plus className="w-4 h-4" /> Đăng sách
