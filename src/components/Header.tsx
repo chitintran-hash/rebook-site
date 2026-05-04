@@ -40,7 +40,7 @@ export const Header = () => {
   }, [session]);
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 py-4 flex justify-between items-center transition-all duration-300">
+    <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 px-6 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-2 group">
         <img src="/logo.png" alt="Re-Book Logo" className="h-[80px] md:h-[96px] w-auto transition-transform group-hover:scale-105" />
       </Link>
