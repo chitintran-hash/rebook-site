@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Star, Heart, ShoppingBag, Book, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { toggleWishlistItem, getUserData } from "@/lib/actions/user-actions";
@@ -268,9 +269,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      <footer className="px-6 py-12 border-t border-black/5 text-center text-sm text-foreground/40 font-medium tracking-wide">
-        &copy; 2026 RE-BOOK. ALL RIGHTS RESERVED.
-      </footer>
+      <Footer />
     </main>
   );
 }
