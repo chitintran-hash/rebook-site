@@ -141,6 +141,18 @@ export default function SignupPage() {
               </div>
             </div>
 
+            <div className="flex items-start gap-3 mt-4 pl-1">
+              <input
+                type="checkbox"
+                id="agreeToPolicies"
+                required
+                className="mt-1 w-4 h-4 rounded border-black/20 text-primary focus:ring-primary/20 transition-all cursor-pointer"
+              />
+              <label htmlFor="agreeToPolicies" className="text-sm text-foreground/60 leading-relaxed cursor-pointer select-none">
+                Tôi đồng ý với các <Link href="/policies/transaction" target="_blank" className="text-primary font-bold hover:underline">Chính sách và Điều khoản</Link> của Re-Book
+              </label>
+            </div>
+
             <AnimatePresence>
               {error && (
                 <motion.div
