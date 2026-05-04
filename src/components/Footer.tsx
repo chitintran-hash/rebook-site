@@ -14,7 +14,12 @@ export const Footer = () => {
             <p className="text-foreground/60 mb-6 max-w-md">
               Re-Book - Nền tảng giao dịch và trao đổi sách cũ uy tín, an toàn và tiết kiệm. Giữ lại tri thức, trao đi câu chuyện.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-bold text-lg mb-4 text-foreground">Về Re-Book</h4>
+                <Link href="/about" className="block text-sm text-foreground/60 hover:text-primary transition-colors">Về chúng tôi</Link>
+                <Link href="/marketplace" className="block text-sm text-foreground/60 hover:text-primary transition-colors">Sàn giao dịch</Link>
+              </div>
               <div className="space-y-3">
                 <h4 className="font-bold text-lg mb-4 text-foreground">Chính sách</h4>
                 <Link href="/policies/quality" className="block text-sm text-foreground/60 hover:text-primary transition-colors">Chất lượng & Thẩm định</Link>
